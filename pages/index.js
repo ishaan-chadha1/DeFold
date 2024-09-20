@@ -10,16 +10,18 @@ export default function Home() {
         <p className="text-xl text-gray-300 max-w-xl mx-auto">
           Securely log in with Worldcoin and access the future of decentralized identity.
         </p>
-        <Link href="/login">
-          <button className="px-8 py-4 mt-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200">
-            Login with Worldcoin
-          </button>
-        </Link>
-        <Link href="/marketplace">
-          <button className="px-8 py-4 mt-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200">
-            Go to Marketplace
-          </button>
-        </Link>
+        <div className="flex justify-center space-x-4"> {/* Added space between buttons */}
+          <Link href="/login">
+            <button className="px-8 py-4 mt-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200">
+              Login with Worldcoin
+            </button>
+          </Link>
+          <Link href="/marketplace">
+            <button className="px-8 py-4 mt-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200">
+              Go to Marketplace
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
