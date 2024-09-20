@@ -3,39 +3,52 @@ import { useState, useEffect } from 'react';
 export default function Marketplace() {
   const [products, setProducts] = useState([]);
 
-  // Mock data for products
-  const mockProducts = [
+  // Customized genomic data mock products
+  const genomicProducts = [
     {
       id: 1,
-      name: "Crypto Hoodie",
-      price: "0.05 ETH",
-      image: "/hoodie.png",
-      description: "A hoodie that keeps you warm while repping the crypto revolution.",
+      name: "Whole Genome Sequencing",
+      price: "1.2 ETH",
+      image: "/genome_sequencing.png",
+      description: "Get your entire genome sequenced with high accuracy. Includes raw data and analysis report.",
     },
     {
       id: 2,
-      name: "Web3 T-shirt",
-      price: "0.03 ETH",
-      image: "/tshirt.png",
-      description: "A stylish T-shirt for the Web3 enthusiast.",
+      name: "Ancestry Analysis",
+      price: "0.5 ETH",
+      image: "/ancestry_analysis.png",
+      description: "Discover your ancestry and lineage based on your genomic data. Comprehensive reports included.",
     },
     {
       id: 3,
-      name: "Blockchain Cap",
-      price: "0.02 ETH",
-      image: "/cap.png",
-      description: "Look cool while staying decentralised with this blockchain cap.",
-    }
+      name: "Genomic Dataset Access",
+      price: "2.0 ETH",
+      image: "/genomic_dataset.png",
+      description: "Access curated genomic datasets for research purposes. Includes human, animal, and plant data.",
+    },
+    {
+      id: 4,
+      name: "Personalized Medicine Report",
+      price: "0.8 ETH",
+      image: "/personalized_medicine.png",
+      description: "Receive a personalized medicine report based on your genomic profile, tailored to your health.",
+    },
+    {
+      id: 5,
+      name: "DNA Methylation Analysis",
+      price: "1.0 ETH",
+      image: "/methylation_analysis.png",
+      description: "Analyze the DNA methylation patterns to understand gene expression and epigenetics.",
+    },
   ];
 
-  // Load products
   useEffect(() => {
-    setProducts(mockProducts);
+    setProducts(genomicProducts);
   }, []);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
+      <h1 className="text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10 mt-20">
         Genomic Data Marketplace
       </h1>
 
