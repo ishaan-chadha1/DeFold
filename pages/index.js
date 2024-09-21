@@ -11,10 +11,6 @@ export default function Home() {
       logo: '/worldcoin-logo.png', // Inverted color if necessary
     },
     {
-      name: 'IPFS',
-      logo: '/ipfs-logo1.png',
-    },
-    {
       name: 'Ethereum',
       logo: '/ethereum-logo1.png',
     },
