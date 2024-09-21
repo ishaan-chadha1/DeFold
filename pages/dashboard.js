@@ -3,17 +3,7 @@ import { useDropzone } from 'react-dropzone';
 
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState('');
   const [parsedFasta, setParsedFasta] = useState(null);
-
-  // Mock data for available algorithms
-  const algorithms = [
-    'DNA Sequencing Analysis',
-    'Gene Expression Profiling',
-    'Epigenetic Pattern Analysis',
-    'Genome-Wide Association Study (GWAS)',
-    'Variant Calling',
-  ];
 
   // Handle file drop via drag-and-drop
   const onDrop = useCallback((acceptedFiles) => {
@@ -34,11 +24,11 @@ export default function Dashboard() {
     reader.readAsText(file); // Reading file as plain text
   };
 
-  // Simple FASTA file parser
+  // Simple FASTA file parser with detailed header parsing
   const parseFastaContent = (content) => {
     const lines = content.split('\n');
     const sequences = [];
-    let currentSequence = { header: '', sequence: '' };
+    let currentSequence = { header: '', sequence: '', parsedHeader: {} };
 
     lines.forEach((line) => {
       if (line.startsWith('>')) {
@@ -46,7 +36,12 @@ export default function Dashboard() {
         if (currentSequence.header) {
           sequences.push(currentSequence);
         }
-        currentSequence = { header: line.trim(), sequence: '' };
+        const header = line.trim();
+        currentSequence = {
+          header: header,
+          sequence: '',
+          parsedHeader: parseHeader(header), // Parse the header into constituents
+        };
       } else {
         // Append sequence data
         currentSequence.sequence += line.trim();
@@ -61,17 +56,47 @@ export default function Dashboard() {
     return sequences;
   };
 
-  const handleAlgorithmChange = (event) => {
-    setSelectedAlgorithm(event.target.value);
+  // Function to parse the detailed header components
+  const parseHeader = (header) => {
+    // Remove the leading '>'
+    const cleanedHeader = header.slice(1).trim();
+
+    // Split the first part by ':' to separate accession number and nucleotide range
+    const [accessionAndRange, ...rest] = cleanedHeader.split(' ');
+    const [accession, range] = accessionAndRange.split(':');
+
+    // Remaining part will contain organism, chromosome, and genome assembly
+    const organism = rest[0] + ' ' + rest[1]; // Assuming organism name is two words (Homo sapiens)
+    const chromosome = rest[2] + ' ' + rest[3]; // Assuming chromosome is of the form "chromosome 11"
+    const assembly = rest[4]; // GRCh38.p14
+    const assemblyType = rest[5] + ' ' + rest[6]; // Primary Assembly
+
+    return {
+      accession: accession || 'N/A',
+      nucleotideRange: range || 'N/A',
+      organism: organism || 'N/A',
+      chromosome: chromosome || 'N/A',
+      genomeAssembly: assembly || 'N/A',
+      assemblyType: assemblyType || 'N/A',
+    };
   };
 
-  const handleRunAnalysis = () => {
-    if (!selectedFile || !selectedAlgorithm) {
-      alert('Please upload a FASTA file and choose an algorithm to proceed.');
+  const handleSubmitData = () => {
+    if (!selectedFile) {
+      alert('Please upload a FASTA file before submitting.');
       return;
     }
-    // Process data (mock for now)
-    alert(`Running ${selectedAlgorithm} on ${selectedFile.name}`);
+
+    // Gather the parsed sequences and header info
+    const dataToSubmit = parsedFasta.map(seq => ({
+      originalHeader: seq.header,
+      parsedHeader: seq.parsedHeader,
+      sequence: seq.sequence,
+    }));
+
+    console.log('Submitting the following data:', dataToSubmit);
+    alert(`Data submitted successfully! File: ${selectedFile.name}`);
+    // You can send `dataToSubmit` to a server here
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -82,7 +107,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
       <h1 className="text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
-        Genomic Data Analysis Dashboard
+        Genomic Data Upload Dashboard
       </h1>
 
       {/* Drag and Drop File Upload Area */}
@@ -96,36 +121,19 @@ export default function Dashboard() {
         {isDragActive ? (
           <p className="text-xl text-green-400">Drop the FASTA file here...</p>
         ) : (
-          <p className="text-xl text-white">Drag and drop a FASTA file here, or click to select a file</p>
+          <p className="text-xl text-white">Drag & drop a FASTA file here, or click to select a file</p>
         )}
         {selectedFile && (
           <p className="mt-3 text-green-400">File selected: {selectedFile.name}</p>
         )}
       </div>
 
-      {/* Algorithm Selection */}
-      <div className="bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg mb-8 w-full max-w-lg">
-        <h2 className="text-2xl font-bold mb-4">Choose Algorithm</h2>
-        <select
-          value={selectedAlgorithm}
-          onChange={handleAlgorithmChange}
-          className="w-full p-3 bg-gray-800 text-white rounded-lg"
-        >
-          <option value="">Select an Algorithm</option>
-          {algorithms.map((algorithm, index) => (
-            <option key={index} value={algorithm}>
-              {algorithm}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Run Analysis Button */}
+      {/* Submit Data Button */}
       <button
-        onClick={handleRunAnalysis}
+        onClick={handleSubmitData}
         className="px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
       >
-        Run Analysis
+        Submit Data
       </button>
 
       {/* Display Parsed FASTA Data */}
@@ -136,6 +144,12 @@ export default function Dashboard() {
             <div key={index} className="mb-4">
               <p className="font-bold">{seq.header}</p>
               <p className="whitespace-pre-line break-all text-sm">{seq.sequence}</p>
+              <p className="text-sm text-gray-400">Accession: {seq.parsedHeader.accession}</p>
+              <p className="text-sm text-gray-400">Nucleotide Range: {seq.parsedHeader.nucleotideRange}</p>
+              <p className="text-sm text-gray-400">Organism: {seq.parsedHeader.organism}</p>
+              <p className="text-sm text-gray-400">Chromosome: {seq.parsedHeader.chromosome}</p>
+              <p className="text-sm text-gray-400">Genome Assembly: {seq.parsedHeader.genomeAssembly}</p>
+              <p className="text-sm text-gray-400">Assembly Type: {seq.parsedHeader.assemblyType}</p>
             </div>
           ))}
         </div>

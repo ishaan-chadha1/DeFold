@@ -2,49 +2,79 @@ import { useState, useEffect } from 'react';
 
 export default function Marketplace() {
   const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState('');
 
-  // Customized genomic data mock products
+  // Available algorithms
+  const algorithms = [
+    'DNA Sequencing Analysis',
+    'Gene Expression Profiling',
+    'Epigenetic Pattern Analysis',
+    'Genome-Wide Association Study (GWAS)',
+    'Variant Calling',
+  ];
+
+  // Updated genomic data mock products (realistic FASTA-like datasets)
   const genomicProducts = [
     {
       id: 1,
-      name: "Whole Genome Sequencing",
-      price: "1.2 ETH",
-      image: "/genome_sequencing.png",
-      description: "Get your entire genome sequenced with high accuracy. Includes raw data and analysis report.",
+      name: "Human Chromosome 11: GRCh38",
+      price: "1.5 ETH",
+      image: "/chromosome_11.png",
+      description: "Contains the full sequence for Human Chromosome 11 from the GRCh38 reference genome. Ideal for genomic research and variant analysis.",
     },
     {
       id: 2,
-      name: "Ancestry Analysis",
-      price: "0.5 ETH",
-      image: "/ancestry_analysis.png",
-      description: "Discover your ancestry and lineage based on your genomic data. Comprehensive reports included.",
+      name: "Mitochondrial Genome: Homo sapiens",
+      price: "0.9 ETH",
+      image: "/mitochondrial_genome.png",
+      description: "Complete mitochondrial DNA sequence for Homo sapiens. Use for studies in mitochondrial disorders and evolutionary biology.",
     },
     {
       id: 3,
-      name: "Genomic Dataset Access",
-      price: "2.0 ETH",
-      image: "/genomic_dataset.png",
-      description: "Access curated genomic datasets for research purposes. Includes human, animal, and plant data.",
+      name: "Bacterial Genome: E. coli K-12 MG1655",
+      price: "2.2 ETH",
+      image: "/bacterial_genome.png",
+      description: "Full genomic sequence of E. coli strain K-12 MG1655. Widely used for research in microbiology and bacterial genomics.",
     },
     {
       id: 4,
-      name: "Personalized Medicine Report",
-      price: "0.8 ETH",
-      image: "/personalized_medicine.png",
-      description: "Receive a personalized medicine report based on your genomic profile, tailored to your health.",
+      name: "Arabidopsis thaliana Genome",
+      price: "1.8 ETH",
+      image: "/plant_genome.png",
+      description: "Genome sequence of the model organism Arabidopsis thaliana. Perfect for plant biology and genetic studies.",
     },
     {
       id: 5,
-      name: "DNA Methylation Analysis",
-      price: "1.0 ETH",
-      image: "/methylation_analysis.png",
-      description: "Analyze the DNA methylation patterns to understand gene expression and epigenetics.",
+      name: "HLA Region: Human Chromosome 6",
+      price: "1.1 ETH",
+      image: "/hla_region.png",
+      description: "Detailed sequence of the HLA region on Human Chromosome 6. Essential for immunogenetics and disease association studies.",
     },
   ];
 
   useEffect(() => {
     setProducts(genomicProducts);
   }, []);
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setShowModal(true);
+  };
+
+  const handleAlgorithmChange = (event) => {
+    setSelectedAlgorithm(event.target.value);
+  };
+
+  const handleApplyAlgorithm = () => {
+    if (selectedAlgorithm) {
+      alert(`Applying ${selectedAlgorithm} to ${selectedProduct.name}`);
+      setShowModal(false);
+    } else {
+      alert("Please select an algorithm.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
@@ -63,14 +93,54 @@ export default function Marketplace() {
             <p className="text-lg text-gray-300 mb-2">{product.price}</p>
             <p className="text-sm text-gray-400 mb-4">{product.description}</p>
             <button
-              onClick={() => alert(`Purchasing ${product.name}...`)}
+              onClick={() => handleProductClick(product)}
               className="px-4 py-2 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg mt-4"
             >
-              Buy Now
+              Select Data Set
             </button>
           </div>
         ))}
       </div>
+
+      {/* Modal for Algorithm Selection */}
+      {showModal && selectedProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+            <h2 className="text-3xl font-bold mb-4">{selectedProduct.name}</h2>
+            <p className="text-lg text-gray-300 mb-4">{selectedProduct.description}</p>
+
+            <div className="mb-4">
+              <label className="block text-gray-400 text-sm mb-2">Choose an Algorithm:</label>
+              <select
+                value={selectedAlgorithm}
+                onChange={handleAlgorithmChange}
+                className="w-full p-3 bg-gray-800 text-white rounded-lg"
+              >
+                <option value="">Select an Algorithm</option>
+                {algorithms.map((algorithm, index) => (
+                  <option key={index} value={algorithm}>
+                    {algorithm}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleApplyAlgorithm}
+              className="px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg mt-4"
+            >
+              Apply Algorithm
+            </button>
+
+            <button
+              onClick={() => setShowModal(false)}
+              className="px-6 py-3 bg-red-500 rounded-lg mt-4 ml-4"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

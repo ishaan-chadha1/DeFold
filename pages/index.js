@@ -35,11 +35,6 @@ export default function Home() {
               Login with Worldcoin
             </button>
           </Link>
-          <Link href="/marketplace">
-            <button className="px-8 py-4 mt-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200">
-              Go to Marketplace
-            </button>
-          </Link>
         </div>
   
         {/* Continuous Scrolling Carousel */}
