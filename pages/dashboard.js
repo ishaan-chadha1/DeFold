@@ -106,7 +106,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
+      <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
         Genomic Data Upload Dashboard
       </h1>
 
@@ -119,19 +119,19 @@ export default function Dashboard() {
       >
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p className="text-xl text-green-400">Drop the FASTA file here...</p>
+          <p className="font-londrina text-xl text-green-400">Drop the FASTA file here...</p>
         ) : (
-          <p className="text-xl text-white">Drag & drop a FASTA file here, or click to select a file</p>
+          <p className="font-londrina text-xl text-white">Drag & drop a FASTA file here, or click to select a file</p>
         )}
         {selectedFile && (
-          <p className="mt-3 text-green-400">File selected: {selectedFile.name}</p>
+          <p className="font-londrina mt-3 text-green-400">File selected: {selectedFile.name}</p>
         )}
       </div>
 
       {/* Submit Data Button */}
       <button
         onClick={handleSubmitData}
-        className="px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
+        className="font-londrina px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
       >
         Submit Data
       </button>

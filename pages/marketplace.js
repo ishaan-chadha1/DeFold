@@ -78,7 +78,7 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10 mt-20">
+      <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10 mt-20">
         Genomic Data Marketplace
       </h1>
 
@@ -89,12 +89,12 @@ export default function Marketplace() {
             className="bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
           >
             <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-lg mb-4" />
-            <h2 className="text-2xl font-bold">{product.name}</h2>
-            <p className="text-lg text-gray-300 mb-2">{product.price}</p>
-            <p className="text-sm text-gray-400 mb-4">{product.description}</p>
+            <h2 className="font-londrina text-2xl font-bold">{product.name}</h2>
+            <p className="font-londrina text-lg text-gray-300 mb-2">{product.price}</p>
+            <p className="font-londrina text-sm text-gray-400 mb-4">{product.description}</p>
             <button
               onClick={() => handleProductClick(product)}
-              className="px-4 py-2 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg mt-4"
+              className="font-londrina px-4 py-2 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg mt-4"
             >
               Select Data Set
             </button>
@@ -106,11 +106,11 @@ export default function Marketplace() {
       {showModal && selectedProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-lg shadow-lg max-w-md w-full text-center">
-            <h2 className="text-3xl font-bold mb-4">{selectedProduct.name}</h2>
-            <p className="text-lg text-gray-300 mb-4">{selectedProduct.description}</p>
+            <h2 className="font-londrina text-3xl font-bold mb-4">{selectedProduct.name}</h2>
+            <p className="font-londrina text-lg text-gray-300 mb-4">{selectedProduct.description}</p>
 
             <div className="mb-4">
-              <label className="block text-gray-400 text-sm mb-2">Choose an Algorithm:</label>
+              <label className="font-londrina block text-gray-400 text-sm mb-2">Choose an Algorithm:</label>
               <select
                 value={selectedAlgorithm}
                 onChange={handleAlgorithmChange}
@@ -127,14 +127,14 @@ export default function Marketplace() {
 
             <button
               onClick={handleApplyAlgorithm}
-              className="px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg mt-4"
+              className="font-londrina px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg mt-4"
             >
               Apply Algorithm
             </button>
 
             <button
               onClick={() => setShowModal(false)}
-              className="px-6 py-3 bg-red-500 rounded-lg mt-4 ml-4"
+              className="font-londrina px-6 py-3 bg-red-500 rounded-lg mt-4 ml-4"
             >
               Close
             </button>
