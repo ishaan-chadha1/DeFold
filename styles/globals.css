@@ -26,3 +26,31 @@ body {
     text-wrap: balance;
   }
 }
+.marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee-content {
+  display: flex;
+  justify-content: space-around;
+  width: 200%; /* Make it twice as wide */
+  animation: scroll 20s linear infinite; /* Continuous scrolling */
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* Move halfway to create an infinite loop */
+  }
+}
+
+.marquee-content > div {
+  flex-shrink: 0;
+  width: auto;
+  padding-right: 50px;
+}
+
