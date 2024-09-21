@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -13,10 +14,18 @@ export default function Dashboard() {
     'Variant Calling',
   ];
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-  };
+  // Handle file drop via drag-and-drop
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      setSelectedFile(acceptedFiles[0]);
+    }
+  }, []);
+
+  // Hook from react-dropzone for drag-and-drop functionality
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: '.csv, .fasta',
+  });
 
   const handleAlgorithmChange = (event) => {
     setSelectedAlgorithm(event.target.value);
@@ -37,15 +46,19 @@ export default function Dashboard() {
         Genomic Data Analysis Dashboard
       </h1>
 
-      {/* File Upload Area */}
-      <div className="bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg mb-8 w-full max-w-lg">
-        <h2 className="text-2xl font-bold mb-4">Upload Your Data</h2>
-        <input
-          type="file"
-          accept=".csv, .fasta"
-          onChange={handleFileUpload}
-          className="w-full p-3 bg-gray-800 text-white rounded-lg"
-        />
+      {/* Drag and Drop File Upload Area */}
+      <div
+        {...getRootProps()}
+        className={`bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg mb-8 w-full max-w-lg border-dashed border-4 ${
+          isDragActive ? 'border-green-500' : 'border-white'
+        }`}
+      >
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p className="text-xl text-green-400">Drop the files here...</p>
+        ) : (
+          <p className="text-xl text-white">Drag 'n' drop a data sheet here, or click to select files</p>
+        )}
         {selectedFile && (
           <p className="mt-3 text-green-400">File selected: {selectedFile.name}</p>
         )}
