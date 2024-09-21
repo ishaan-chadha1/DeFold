@@ -1,23 +1,44 @@
-import dynamic from 'next/dynamic';
-import { useState } from 'react';
-import Link from 'next/link';
+"use client";
+import { IDKitWidget, VerificationLevel } from "@worldcoin/idkit";
+import { useState } from "react";
+import { useRouter } from "next/router";  // Import useRouter for navigation
 
-// Dynamically import the WorldIDWidget with no SSR
-const WorldIDWidget = dynamic(
-  () => import('@worldcoin/id').then((mod) => mod.WorldIDWidget),
-  { ssr: false } // Disable server-side rendering for this component
-);
+// Function to call your backend API to verify proof
+const verifyProof = async (proof) => {
+  try {
+    const response = await fetch('/api/verify-world-id', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(proof),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log("Proof successfully verified!");
+    } else {
+      console.error("Verification failed:", data.message);
+    }
+  } catch (error) {
+    console.error("Error verifying proof:", error);
+  }
+};
+
+// Functionality after successful World ID verification
+const onSuccess = () => {
+  console.log("Success! World ID verified.");
+};
 
 export default function Login() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();  // Initialize the router
 
-  const handleWorldIDSuccess = (verificationResponse) => {
-    console.log("User authenticated:", verificationResponse);
+  const handleAuthenticationSuccess = () => {
     setIsAuthenticated(true);
-  };
-
-  const handleWorldIDFailure = (error) => {
-    console.error("Authentication failed:", error);
+    // Redirect the user to the buy-sell page after authentication
+    router.push('/buy-sell');  // Redirects to the new buy-sell page
   };
 
   return (
@@ -29,23 +50,26 @@ export default function Login() {
 
         {!isAuthenticated ? (
           <div className="mt-8">
-            <WorldIDWidget
-              actionId="YOUR_ACTION_ID"
-              signal="user_login"
-              enableTelemetry
-              onSuccess={handleWorldIDSuccess}
-              onError={handleWorldIDFailure}
-            />
+            <IDKitWidget
+              app_id="app_da7fe4a0209edf22695b1f66f1c775a0" // Your Worldcoin App ID
+              action="genomic_login" // Your Action ID
+              verification_level={VerificationLevel.Device}
+              handleVerify={verifyProof} // Calls your backend to verify proof
+              onSuccess={handleAuthenticationSuccess} // Triggers redirect after success
+            >
+              {({ open }) => (
+                <button
+                  onClick={open}
+                  className="mt-8 px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-md hover:scale-105 transition-transform duration-200"
+                >
+                  Verify with World ID
+                </button>
+              )}
+            </IDKitWidget>
           </div>
         ) : (
           <p className="mt-8 text-xl text-green-400">You are authenticated!</p>
         )}
-
-        <Link href="/">
-          <button className="mt-8 px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-md hover:scale-105 transition-transform duration-200">
-            Back to Home
-          </button>
-        </Link>
       </div>
     </div>
   );
