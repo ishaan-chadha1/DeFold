@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import NounLoadingAnimation from '@/components/NounLoadingAnimation';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -9,7 +10,6 @@ export default function Dashboard() {
   const [nounImg, setNounImg] = useState(''); // State to store the Noun image
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [isLoading, setIsLoading] = useState(true);
-  
 
   // Handle file drop via drag-and-drop
   const onDrop = useCallback((acceptedFiles) => {
@@ -30,7 +30,6 @@ export default function Dashboard() {
     reader.readAsText(file); // Reading file as plain text
   };
 
-  // Simple FASTA file parser with detailed header parsing
   const parseFastaContent = (content) => {
     const lines = content.split('\n');
     const sequences = [];
@@ -115,84 +114,96 @@ export default function Dashboard() {
     onDrop,
     accept: '.fasta',
   });
-  useEffect(() => {
-    // Show the animation for 3 seconds before displaying the content
-    const timer = setTimeout(() => {
-      setIsLoading(false); // Stop showing the loading animation after 3 seconds
-    }, 5000);
 
-    return () => clearTimeout(timer); // Clean up the timeout on unmount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000); // 5 seconds for the loading animation
+
+    return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
-    return <NounLoadingAnimation />;
-  }
-
   return (
-
-      
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
-        Genomic Data Upload Dashboard
-      </h1>
-
-      <div
-        {...getRootProps()}
-        className={`bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg mb-8 w-full max-w-lg border-dashed border-4 ${
-          isDragActive ? 'border-green-500' : 'border-white'
-        }`}
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p className="font-londrina text-xl text-green-400">Drop the FASTA file here...</p>
-        ) : (
-          <p className="font-londrina text-xl text-white">Drag & drop a FASTA file here, or click to select a file</p>
+    <>
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="min-h-screen flex items-center justify-center bg-black"
+          >
+            <NounLoadingAnimation />
+          </motion.div>
         )}
-        {selectedFile && (
-          <p className="font-londrina mt-3 text-green-400">File selected: {selectedFile.name}</p>
-        )}
-      </div>
+      </AnimatePresence>
+      {!isLoading && (
+        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
+          <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
+            Genomic Data Upload Dashboard
+          </h1>
 
-      <button
-        onClick={handleSubmitData}
-        className="font-londrina px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
-      >
-        Submit Data
-      </button>
-
-      {parsedFasta && (
-        <div className="mt-8 w-full max-w-lg bg-gray-900 p-5 rounded-lg text-white">
-          <h3 className="text-2xl font-bold mb-4">Parsed FASTA Sequences:</h3>
-          {parsedFasta.map((seq, index) => (
-            <div key={index} className="mb-4">
-              <p className="font-bold">{seq.header}</p>
-              <p className="whitespace-pre-line break-all text-sm">{seq.sequence}</p>
-              <p className="text-sm text-gray-400">Accession: {seq.parsedHeader.accession}</p>
-              <p className="text-sm text-gray-400">Nucleotide Range: {seq.parsedHeader.nucleotideRange}</p>
-              <p className="text-sm text-gray-400">Organism: {seq.parsedHeader.organism}</p>
-              <p className="text-sm text-gray-400">Chromosome: {seq.parsedHeader.chromosome}</p>
-              <p className="text-sm text-gray-400">Genome Assembly: {seq.parsedHeader.genomeAssembly}</p>
-              <p className="text-sm text-gray-400">Assembly Type: {seq.parsedHeader.assemblyType}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Modal for displaying the Noun */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 text-center">
-            <h3 className="font-londrina text-black text-2xl font-bold mb-4">Congratulations! You have earned a Noun!</h3>
-            <div dangerouslySetInnerHTML={{ __html: nounImg }}></div>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="font-londrina mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
-            >
-              Close
-            </button>
+          <div
+            {...getRootProps()}
+            className={`bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg mb-8 w-full max-w-lg border-dashed border-4 ${
+              isDragActive ? 'border-green-500' : 'border-white'
+            }`}
+          >
+            <input {...getInputProps()} />
+            {isDragActive ? (
+              <p className="font-londrina text-xl text-green-400">Drop the FASTA file here...</p>
+            ) : (
+              <p className="font-londrina text-xl text-white">Drag & drop a FASTA file here, or click to select a file</p>
+            )}
+            {selectedFile && (
+              <p className="font-londrina mt-3 text-green-400">File selected: {selectedFile.name}</p>
+            )}
           </div>
+
+          <button
+            onClick={handleSubmitData}
+            className="font-londrina px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
+          >
+            Submit Data
+          </button>
+
+          {parsedFasta && (
+            <div className="mt-8 w-full max-w-lg bg-gray-900 p-5 rounded-lg text-white">
+              <h3 className="text-2xl font-bold mb-4">Parsed FASTA Sequences:</h3>
+              {parsedFasta.map((seq, index) => (
+                <div key={index} className="mb-4">
+                  <p className="font-bold">{seq.header}</p>
+                  <p className="whitespace-pre-line break-all text-sm">{seq.sequence}</p>
+                  <p className="text-sm text-gray-400">Accession: {seq.parsedHeader.accession}</p>
+                  <p className="text-sm text-gray-400">Nucleotide Range: {seq.parsedHeader.nucleotideRange}</p>
+                  <p className="text-sm text-gray-400">Organism: {seq.parsedHeader.organism}</p>
+                  <p className="text-sm text-gray-400">Chromosome: {seq.parsedHeader.chromosome}</p>
+                  <p className="text-sm text-gray-400">Genome Assembly: {seq.parsedHeader.genomeAssembly}</p>
+                  <p className="text-sm text-gray-400">Assembly Type: {seq.parsedHeader.assemblyType}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Modal for displaying the Noun */}
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-8 text-center">
+                <h3 className="font-londrina text-black text-2xl font-bold mb-4">Congratulations! You have earned a Noun!</h3>
+                <div dangerouslySetInnerHTML={{ __html: nounImg }}></div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="font-londrina mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 }
