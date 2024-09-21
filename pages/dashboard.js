@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('');
+  const [parsedFasta, setParsedFasta] = useState(null);
 
   // Mock data for available algorithms
   const algorithms = [
@@ -16,16 +17,49 @@ export default function Dashboard() {
 
   // Handle file drop via drag-and-drop
   const onDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
-      setSelectedFile(acceptedFiles[0]);
-    }
+    const file = acceptedFiles[0];
+    setSelectedFile(file);
+    parseFasta(file); // Call the FASTA parser when file is uploaded
   }, []);
 
-  // Hook from react-dropzone for drag-and-drop functionality
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: '.csv, .fasta',
-  });
+  // Parse FASTA files
+  const parseFasta = (file) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target.result;
+      const sequences = parseFastaContent(content);
+      console.log('Parsed FASTA sequences:', sequences);
+      setParsedFasta(sequences);
+    };
+    reader.readAsText(file); // Reading file as plain text
+  };
+
+  // Simple FASTA file parser
+  const parseFastaContent = (content) => {
+    const lines = content.split('\n');
+    const sequences = [];
+    let currentSequence = { header: '', sequence: '' };
+
+    lines.forEach((line) => {
+      if (line.startsWith('>')) {
+        // Start of a new sequence
+        if (currentSequence.header) {
+          sequences.push(currentSequence);
+        }
+        currentSequence = { header: line.trim(), sequence: '' };
+      } else {
+        // Append sequence data
+        currentSequence.sequence += line.trim();
+      }
+    });
+
+    // Push the last sequence
+    if (currentSequence.header) {
+      sequences.push(currentSequence);
+    }
+
+    return sequences;
+  };
 
   const handleAlgorithmChange = (event) => {
     setSelectedAlgorithm(event.target.value);
@@ -33,12 +67,17 @@ export default function Dashboard() {
 
   const handleRunAnalysis = () => {
     if (!selectedFile || !selectedAlgorithm) {
-      alert('Please upload a file and choose an algorithm to proceed.');
+      alert('Please upload a FASTA file and choose an algorithm to proceed.');
       return;
     }
     // Process data (mock for now)
     alert(`Running ${selectedAlgorithm} on ${selectedFile.name}`);
   };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: '.fasta',
+  });
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
@@ -55,9 +94,9 @@ export default function Dashboard() {
       >
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p className="text-xl text-green-400">Drop the files here...</p>
+          <p className="text-xl text-green-400">Drop the FASTA file here...</p>
         ) : (
-          <p className="text-xl text-white">Drag And drop a data sheet here, or click to select files</p>
+          <p className="text-xl text-white">Drag and drop a FASTA file here, or click to select a file</p>
         )}
         {selectedFile && (
           <p className="mt-3 text-green-400">File selected: {selectedFile.name}</p>
@@ -88,6 +127,19 @@ export default function Dashboard() {
       >
         Run Analysis
       </button>
+
+      {/* Display Parsed FASTA Data */}
+      {parsedFasta && (
+        <div className="mt-8 w-full max-w-lg bg-gray-900 p-5 rounded-lg text-white">
+          <h3 className="text-2xl font-bold mb-4">Parsed FASTA Sequences:</h3>
+          {parsedFasta.map((seq, index) => (
+            <div key={index} className="mb-4">
+              <p className="font-bold">{seq.header}</p>
+              <p className="whitespace-pre-line break-all text-sm">{seq.sequence}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
