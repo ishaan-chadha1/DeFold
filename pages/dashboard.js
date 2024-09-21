@@ -165,7 +165,7 @@ export default function Dashboard() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 text-center">
-            <h3 className="font-londrina text-black text-2xl font-bold mb-4">Congratulations! You've earned a Noun!</h3>
+            <h3 className="font-londrina text-black text-2xl font-bold mb-4">Congratulations! You have earned a Noun!</h3>
             <div dangerouslySetInnerHTML={{ __html: nounImg }}></div>
             <button
               onClick={() => setIsModalOpen(false)}
