@@ -6,7 +6,7 @@ export default function BuySell() {
   const { userId } = router.query; // Get the userId from the query parameters
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black">
       <h1 className="font-londrina text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
         What would you like to do?
       </h1>
