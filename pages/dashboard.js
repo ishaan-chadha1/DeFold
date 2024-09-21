@@ -57,7 +57,7 @@ export default function Dashboard() {
         {isDragActive ? (
           <p className="text-xl text-green-400">Drop the files here...</p>
         ) : (
-          <p className="text-xl text-white">Drag 'n' drop a data sheet here, or click to select files</p>
+          <p className="text-xl text-white">Drag And drop a data sheet here, or click to select files</p>
         )}
         {selectedFile && (
           <p className="mt-3 text-green-400">File selected: {selectedFile.name}</p>
