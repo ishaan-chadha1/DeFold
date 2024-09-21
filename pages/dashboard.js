@@ -3,6 +3,28 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import NounLoadingAnimation from '@/components/NounLoadingAnimation';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ethers } from 'ethers';
+import * as sapphire from '@oasisprotocol/sapphire-paratime';
+
+const contractAddress = "0xB39387394ac017a51FA487D22fA5258f1E71d546"; // Your contract address
+const abi = [
+  // Genomic Data submission
+  "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
+  // Purchase genomic data and return nucleotide counts
+  "function purchaseGenomicData(uint _dataId) external payable returns (uint aCount, uint cCount, uint tCount, uint gCount)",
+  // Get nucleotide counts after purchase
+  "function getNucleotideCounts(uint _dataId) external view returns (uint aCount, uint cCount, uint tCount, uint gCount)",
+  // Rate a researcher
+  "function rateResearcher(address _researcher, uint _rating) external",
+  // Get researcher rating (average rating)
+  "function getResearcherRating(address _researcher) public view returns (uint averageRating)",
+  // Get genomic data information
+  "function getGenomicDataInfo(uint _dataId) external view returns (string title, uint price, address owner, string ownerName, uint ownerRating)",
+  // Events
+  "event GenomicDataSubmitted(uint indexed dataId, string title, uint price, address indexed owner)",
+  "event GenomicDataSold(uint indexed dataId, address indexed buyer, uint price)",
+  "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)"
+];
 
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -10,6 +32,7 @@ export default function Dashboard() {
   const [nounImg, setNounImg] = useState(''); // State to store the Noun image
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [isLoading, setIsLoading] = useState(true);
+  const [contractWithSigner, setContractWithSigner] = useState();
 
   // Handle file drop via drag-and-drop
   const onDrop = useCallback((acceptedFiles) => {
@@ -17,6 +40,30 @@ export default function Dashboard() {
     setSelectedFile(file);
     parseFasta(file); // Call the FASTA parser when file is uploaded
   }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        if (window.ethereum) {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const provider = sapphire.wrap(new ethers.providers.Web3Provider(window.ethereum));
+          const signer = provider.getSigner(); // Get the signer
+          
+          const contractInstance = new ethers.Contract(contractAddress, abi, provider);
+          const contractWithSignerInstance = new ethers.Contract(contractAddress, abi, signer); // Contract with signer
+
+          setContractWithSigner(contractWithSignerInstance); // Store the signer contract
+          console.log("Successfully connected!");
+        } else {
+          console.log("Please install MetaMask!");
+        }
+      } catch (err) {
+        console.log("Error fetching count: " + err.message);
+      }
+    };
+    init();
+  }, []);
+
 
   // Parse FASTA files
   const parseFasta = (file) => {
@@ -104,10 +151,39 @@ export default function Dashboard() {
       sequence: seq.sequence,
     }));
 
-    console.log('Submitting the following data:', dataToSubmit);
-    alert(`Data submitted successfully! File: ${selectedFile.name}`);
+    for (const seq of dataToSubmit) {
+      const {
+        originalHeader,
+        parsedHeader,
+        sequence,
+      } = seq;
 
-    await rewardUserWithNoun(); // Reward user after submission
+      const title = originalHeader || "Untitled Data";
+      const price = ethers.utils.parseEther("0.1"); 
+
+      try {
+        const tx = await contractWithSigner.submitGenomicData( // Use contract with signer
+          "ResearcherExample",
+          parsedHeader.chromosome || "unknown",
+          parsedHeader.gene || "unknown",
+          parsedHeader.organism || "unknown",
+          parsedHeader.nucleotideRange || "unknown",
+          parsedHeader.assemblyType || "unknown",
+          parsedHeader.accession || "unknown",
+          sequence,
+          title,
+          price
+        );
+        await tx.wait();
+        console.log(`Submitted genomic data: ${title}`);
+      } catch (error) {
+        console.error("Error submitting genomic data:", error);
+        alert("There was an error submitting your data. Please try again.");
+      }
+    }
+
+    alert(`Data submitted successfully! File: ${selectedFile.name}`);
+    await rewardUserWithNoun();
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

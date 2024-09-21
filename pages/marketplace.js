@@ -1,10 +1,33 @@
 import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import * as sapphire from '@oasisprotocol/sapphire-paratime';
+
+const contractAddress = "0xB39387394ac017a51FA487D22fA5258f1E71d546"; // Your contract address
+const abi = [
+  // Genomic Data submission
+  "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
+  // Purchase genomic data and return nucleotide counts
+  "function purchaseGenomicData(uint _dataId) external payable returns (uint aCount, uint cCount, uint tCount, uint gCount)",
+  // Get nucleotide counts after purchase
+  "function getNucleotideCounts(uint _dataId) external view returns (uint aCount, uint cCount, uint tCount, uint gCount)",
+  // Rate a researcher
+  "function rateResearcher(address _researcher, uint _rating) external",
+  // Get researcher rating (average rating)
+  "function getResearcherRating(address _researcher) public view returns (uint averageRating)",
+  // Get genomic data information
+  "function getGenomicDataInfo(uint _dataId) external view returns (string title, uint price, address owner, string ownerName, uint ownerRating)",
+  // Events
+  "event GenomicDataSubmitted(uint indexed dataId, string title, uint price, address indexed owner)",
+  "event GenomicDataSold(uint indexed dataId, address indexed buyer, uint price)",
+  "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)"
+];
 
 export default function Marketplace() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('');
+  const [contract, setContract] = useState()
 
   // Available algorithms
   const algorithms = [
@@ -56,6 +79,27 @@ export default function Marketplace() {
 
   useEffect(() => {
     setProducts(genomicProducts);
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+        try {
+          if (window.ethereum) {
+            await window.ethereum.request({ method: 'eth_requestAccounts' }); // Request account access
+            const provider = sapphire.wrap(new ethers.providers.Web3Provider(window.ethereum));
+            const contract2 = new ethers.Contract(contractAddress, abi, provider);
+            setContract(contract2);
+            const currentCount = await contract.getCount();
+            setCount(currentCount.toString());
+            console.log("Successfully connected!");
+          } else {
+            console.log("Please install MetaMask!");
+          }
+        } catch (err) {
+          console.log("Error fetching count: " + err.message);
+        }
+      };
+    init();
   }, []);
 
   const handleProductClick = (product) => {

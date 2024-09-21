@@ -3,42 +3,23 @@ import { IDKitWidget, VerificationLevel } from "@worldcoin/idkit";
 import { useState } from "react";
 import { useRouter } from "next/router";  // Import useRouter for navigation
 
-// Function to call your backend API to verify proof
-const verifyProof = async (proof) => {
-  try {
-    const response = await fetch('/api/verify-world-id', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(proof),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      console.log("Proof successfully verified!");
-    } else {
-      console.error("Verification failed:", data.message);
-    }
-  } catch (error) {
-    console.error("Error verifying proof:", error);
-  }
-};
-
-// Functionality after successful World ID verification
-const onSuccess = () => {
-  console.log("Success! World ID verified.");
-};
-
 export default function Login() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState(null);  // State to store the user's unique ID
   const router = useRouter();  // Initialize the router
 
-  const handleAuthenticationSuccess = () => {
+  const onSuccess = async (proof) => {
+    console.log("Success! World ID verified.");
+    console.log("Proof object:", proof);
+
+    const uniqueId = proof.nullifier_hash;  // Extract unique ID from proof
+    setUserId(uniqueId);  // Save the unique ID
+
     setIsAuthenticated(true);
-    // Redirect the user to the buy-sell page after authentication
-    router.push('/buy-sell');  // Redirects to the new buy-sell page
+    router.push({
+      pathname: '/buy-sell',
+      query: { userId: uniqueId },  
+    }); 
   };
 
   return (
@@ -54,13 +35,15 @@ export default function Login() {
               app_id="app_da7fe4a0209edf22695b1f66f1c775a0" // Your Worldcoin App ID
               action="genomic_login" // Your Action ID
               verification_level={VerificationLevel.Device}
-              handleVerify={verifyProof} // Calls your backend to verify proof
-              onSuccess={handleAuthenticationSuccess} // Triggers redirect after success
+              handleVerify={(proof) => {
+                console.log("Proof:", proof);
+              }}
+              onSuccess={onSuccess} // Calls onSuccess after verification
             >
               {({ open }) => (
                 <button
                   onClick={open}
-                  className=" font-londrina mt-8 px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-md hover:scale-105 transition-transform duration-200"
+                  className="font-londrina mt-8 px-6 py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-md hover:scale-105 transition-transform duration-200"
                 >
                   Verify with World ID
                 </button>
@@ -68,7 +51,14 @@ export default function Login() {
             </IDKitWidget>
           </div>
         ) : (
-          <p className="font-londrina mt-6 text-xl text-green-400">You are authenticated!</p>
+          <div>
+            <p className="font-londrina mt-6 text-xl text-green-400">
+              You are authenticated!
+            </p>
+            <p className="font-londrina mt-2 text-lg text-gray-600">
+              Your unique ID: {userId}
+            </p>
+          </div>
         )}
       </div>
     </div>
