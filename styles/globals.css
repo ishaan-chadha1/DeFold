@@ -16,6 +16,8 @@
 }
 
 body {
+  margin: 0;
+  overflow-x: hidden; /* Prevents horizontal scrolling */
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
