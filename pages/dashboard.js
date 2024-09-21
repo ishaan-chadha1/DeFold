@@ -25,16 +25,17 @@ const abi = [
   "event GenomicDataSold(uint indexed dataId, address indexed buyer, uint price)",
   "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)"
 ];
-
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [parsedFasta, setParsedFasta] = useState(null);
-  const [nounImg, setNounImg] = useState(''); // State to store the Noun image
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [fileName, setFileName] = useState(''); // New state for the file name
+  const [nounImg, setNounImg] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWaitingForTx, setIsWaitingForTx] = useState(false); // New modal for waiting for MetaMask transaction
+  const [transactionStatus, setTransactionStatus] = useState(null);
   const [contractWithSigner, setContractWithSigner] = useState();
 
-  // Handle file drop via drag-and-drop
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     setSelectedFile(file);
@@ -48,7 +49,7 @@ export default function Dashboard() {
           await window.ethereum.request({ method: 'eth_requestAccounts' });
           const provider = sapphire.wrap(new ethers.providers.Web3Provider(window.ethereum));
           const signer = provider.getSigner(); // Get the signer
-          
+
           const contractInstance = new ethers.Contract(contractAddress, abi, provider);
           const contractWithSignerInstance = new ethers.Contract(contractAddress, abi, signer); // Contract with signer
 
@@ -64,8 +65,6 @@ export default function Dashboard() {
     init();
   }, []);
 
-
-  // Parse FASTA files
   const parseFasta = (file) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -145,24 +144,31 @@ export default function Dashboard() {
       return;
     }
 
+    if (!fileName) {
+      alert('Please enter a name for the file.');
+      return;
+    }
+
     const dataToSubmit = parsedFasta.map(seq => ({
       originalHeader: seq.header,
       parsedHeader: seq.parsedHeader,
       sequence: seq.sequence,
     }));
 
-    for (const seq of dataToSubmit) {
-      const {
-        originalHeader,
-        parsedHeader,
-        sequence,
-      } = seq;
+    try {
+      setIsWaitingForTx(true); // Show "waiting for MetaMask" modal
 
-      const title = originalHeader || "Untitled Data";
-      const price = ethers.utils.parseEther("0.1"); 
+      for (const seq of dataToSubmit) {
+        const {
+          originalHeader,
+          parsedHeader,
+          sequence,
+        } = seq;
 
-      try {
-        const tx = await contractWithSigner.submitGenomicData( // Use contract with signer
+        const title = fileName; // Use the file name input by the user
+        const price = ethers.utils.parseEther("0.1"); 
+
+        const tx = await contractWithSigner.submitGenomicData(
           "ResearcherExample",
           parsedHeader.chromosome || "unknown",
           parsedHeader.gene || "unknown",
@@ -174,16 +180,20 @@ export default function Dashboard() {
           title,
           price
         );
-        await tx.wait();
-        console.log(`Submitted genomic data: ${title}`);
-      } catch (error) {
-        console.error("Error submitting genomic data:", error);
-        alert("There was an error submitting your data. Please try again.");
-      }
-    }
 
-    alert(`Data submitted successfully! File: ${selectedFile.name}`);
-    await rewardUserWithNoun();
+        await tx.wait(); // Wait for transaction to be mined
+        setTransactionStatus('success'); // Set transaction as successful
+        console.log(`Submitted genomic data: ${title}`);
+      }
+
+      await rewardUserWithNoun(); // Show reward modal if successful
+    } catch (error) {
+      setTransactionStatus('failure'); // Set transaction as failed
+      console.error("Error submitting genomic data:", error);
+      alert("There was an error submitting your data. Please try again.");
+    } finally {
+      setIsWaitingForTx(false); // Hide waiting for MetaMask modal
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -220,6 +230,15 @@ export default function Dashboard() {
           <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
             Genomic Data Upload Dashboard
           </h1>
+
+          {/* Input for file name */}
+          <input
+            type="text"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            placeholder="Enter a name for the file"
+            className="mb-4 p-2 rounded-lg text-black"
+          />
 
           <div
             {...getRootProps()}
@@ -260,6 +279,25 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-400">Assembly Type: {seq.parsedHeader.assemblyType}</p>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Modal for waiting for MetaMask */}
+          {isWaitingForTx && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-8 text-center">
+                <h3 className="font-londrina text-black text-2xl font-bold mb-4">
+                  {transactionStatus === null ? 'Waiting for MetaMask...' : transactionStatus === 'success' ? 'Data Uploaded Successfully!' : 'Transaction Failed'}
+                </h3>
+                {transactionStatus && (
+                  <button
+                    onClick={() => setIsWaitingForTx(false)}
+                    className="font-londrina mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  >
+                    Close
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
