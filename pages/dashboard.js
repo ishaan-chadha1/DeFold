@@ -1,12 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import NounLoadingAnimation from '@/components/NounLoadingAnimation';
 
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [parsedFasta, setParsedFasta] = useState(null);
   const [nounImg, setNounImg] = useState(''); // State to store the Noun image
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [isLoading, setIsLoading] = useState(true);
+  
 
   // Handle file drop via drag-and-drop
   const onDrop = useCallback((acceptedFiles) => {
@@ -112,8 +115,22 @@ export default function Dashboard() {
     onDrop,
     accept: '.fasta',
   });
+  useEffect(() => {
+    // Show the animation for 3 seconds before displaying the content
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Stop showing the loading animation after 3 seconds
+    }, 5000);
+
+    return () => clearTimeout(timer); // Clean up the timeout on unmount
+  }, []);
+
+  if (isLoading) {
+    return <NounLoadingAnimation />;
+  }
 
   return (
+
+      
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
       <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
         Genomic Data Upload Dashboard
