@@ -226,7 +226,7 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
       {!isLoading && (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
+        <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center">
           <h1 className="font-londrina text-5xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-green-500 text-transparent bg-clip-text mb-10">
             Genomic Data Upload Dashboard
           </h1>
@@ -250,7 +250,7 @@ export default function Dashboard() {
             {isDragActive ? (
               <p className="font-londrina text-xl text-green-400">Drop the FASTA file here...</p>
             ) : (
-              <p className="font-londrina text-xl text-white">Drag & drop a FASTA file here, or click to select a file</p>
+              <p className="font-londrina text-xl text-black">Drag & drop a FASTA file here, or click to select a file</p>
             )}
             {selectedFile && (
               <p className="font-londrina mt-3 text-green-400">File selected: {selectedFile.name}</p>
@@ -265,18 +265,18 @@ export default function Dashboard() {
           </button>
 
           {parsedFasta && (
-            <div className="mt-8 w-full max-w-lg bg-gray-900 p-5 rounded-lg text-white">
-              <h3 className="text-2xl font-bold mb-4">Parsed FASTA Sequences:</h3>
+            <div className="mt-8 w-full max-w-lg bg-gray-900 p-5 rounded-lg text-black">
+              <h3 className="font-londrina text-white text-2xl font-bold mb-4">Parsed FASTA Sequences:</h3>
               {parsedFasta.map((seq, index) => (
                 <div key={index} className="mb-4">
-                  <p className="font-bold">{seq.header}</p>
-                  <p className="whitespace-pre-line break-all text-sm">{seq.sequence}</p>
-                  <p className="text-sm text-gray-400">Accession: {seq.parsedHeader.accession}</p>
-                  <p className="text-sm text-gray-400">Nucleotide Range: {seq.parsedHeader.nucleotideRange}</p>
-                  <p className="text-sm text-gray-400">Organism: {seq.parsedHeader.organism}</p>
-                  <p className="text-sm text-gray-400">Chromosome: {seq.parsedHeader.chromosome}</p>
-                  <p className="text-sm text-gray-400">Genome Assembly: {seq.parsedHeader.genomeAssembly}</p>
-                  <p className="text-sm text-gray-400">Assembly Type: {seq.parsedHeader.assemblyType}</p>
+                  <p className="font-londrina text-white font-bold">{seq.header}</p>
+                  <p className="font-londrina whitespace-pre-line break-all text-white text-sm">{seq.sequence}</p>
+                  <p className="font-londrina text-sm text-gray-400">Accession: {seq.parsedHeader.accession}</p>
+                  <p className="font-londrina text-sm text-gray-400">Nucleotide Range: {seq.parsedHeader.nucleotideRange}</p>
+                  <p className="font-londrina text-sm text-gray-400">Organism: {seq.parsedHeader.organism}</p>
+                  <p className="font-londrina text-sm text-gray-400">Chromosome: {seq.parsedHeader.chromosome}</p>
+                  <p className="font-londrina text-sm text-gray-400">Genome Assembly: {seq.parsedHeader.genomeAssembly}</p>
+                  <p className="font-londrina text-sm text-gray-400">Assembly Type: {seq.parsedHeader.assemblyType}</p>
                 </div>
               ))}
             </div>
@@ -292,7 +292,7 @@ export default function Dashboard() {
                 {transactionStatus && (
                   <button
                     onClick={() => setIsWaitingForTx(false)}
-                    className="font-londrina mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                    className="font-londrina mt-4 bg-blue-500 text-black px-4 py-2 rounded-lg"
                   >
                     Close
                   </button>
@@ -309,7 +309,7 @@ export default function Dashboard() {
                 <div dangerouslySetInnerHTML={{ __html: nounImg }}></div>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="font-londrina mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  className="font-londrina mt-4 bg-blue-500 text-black px-4 py-2 rounded-lg"
                 >
                   Close
                 </button>
