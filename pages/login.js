@@ -1,6 +1,12 @@
-import { WorldIDWidget } from "@worldcoin/id";
-import { useState } from "react";
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import Link from 'next/link';
+
+// Dynamically import the WorldIDWidget with no SSR
+const WorldIDWidget = dynamic(
+  () => import('@worldcoin/id').then((mod) => mod.WorldIDWidget),
+  { ssr: false } // Disable server-side rendering for this component
+);
 
 export default function Login() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,7 +30,7 @@ export default function Login() {
         {!isAuthenticated ? (
           <div className="mt-8">
             <WorldIDWidget
-              actionId="YOUR_ACTION_ID" 
+              actionId="YOUR_ACTION_ID"
               signal="user_login"
               enableTelemetry
               onSuccess={handleWorldIDSuccess}
