@@ -12,11 +12,11 @@ export default function Home() {
     },
     {
       name: 'IPFS',
-      logo: '/ipfs-logo.png',
+      logo: '/ipfs-logo1.png',
     },
     {
       name: 'Ethereum',
-      logo: '/ethereum-logo.png',
+      logo: '/ethereum-logo1.png',
     },
   ];
 
