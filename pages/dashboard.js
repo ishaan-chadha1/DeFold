@@ -237,7 +237,7 @@ export default function Dashboard() {
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             placeholder="Enter a name for the file"
-            className="mb-4 p-2 rounded-lg text-black"
+            className="font-londrina mb-4 p-2 rounded-lg text-black"
           />
 
           <div
