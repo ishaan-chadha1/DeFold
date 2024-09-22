@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import * as sapphire from '@oasisprotocol/sapphire-paratime';
 
-const contractAddress = "0x4b6FEa99456118cAffA8eDCD3AAC4E961551B51e"; // Your contract address
+const contractAddress = "0x4bE87Ced729c0F1226D548E4C57f32F358F93D40"; // Your contract address
 const abi = [
   // Genomic Data submission
   "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
@@ -30,7 +30,7 @@ const abi = [
 export default function Marketplace() {
     // Available algorithms
     const algorithms = [
-      'GNC Base Pair Calculation',
+      'GC Base Pair Calculation',
       'All Base Pair Calculation',
       'Homologous Base Pair Calculation',
     ];
@@ -108,10 +108,12 @@ export default function Marketplace() {
         });
   
         await tx.wait(); 
-        alert(`Purchased genomic data! for ${selectedProduct.name}`);
+        alert(`Purchased genomic data for ${selectedProduct.name}`);
 
+        console.log("🚀 ~ handleApplyAlgorithm ~ selectedAlgorithm:", selectedAlgorithm)
         if(selectedAlgorithm.startsWith('GC')){
           const gcCount = await contractWithSigner.calculateGCBasePair(selectedProduct.id);
+          console.log("🚀 ~ handleApplyAlgorithm ~ gcCount:", gcCount)
           alert(`GC Base Pair Count: ${gcCount.toNumber()}`);
         }else if(selectedAlgorithm.startsWith('All')){
           const counts = await contractWithSigner.getNucleotideCounts(selectedProduct.id);
