@@ -45,12 +45,12 @@ export default function NounLoadingAnimation() {
             initial={{ scale: 0.5, rotate: 0, opacity: 0 }}
             animate={{ scale: 1, rotate: 360, opacity: 1 }}
             transition={{
-              duration: 2,
+              duration: 5,
               ease: [0.17, 0.67, 0.83, 0.67],
               onComplete: () => {
                 setTimeout(() => {
                   setCurrentNounIndex((prevIndex) => (prevIndex + 1) % nouns.length);
-                }, 2000); // 3-second pause before switching to next noun
+                }, 5000); // 3-second pause before switching to next noun
               },
             }}
             dangerouslySetInnerHTML={{ __html: nouns[currentNounIndex] }}
