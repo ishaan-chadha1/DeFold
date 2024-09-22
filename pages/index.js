@@ -23,11 +23,11 @@ export default function Home() {
         <div className="flex items-center justify-center space-x-4">
           <img
             src="/download.png" // Path to your company logo
-            alt="DeFlow Logo"
+            alt="DeFold Logo"
             className="w-32 h-32 object-contain bg-transparent" // Adjust size as needed
           />
           <h1 className="font-londrina text-6xl font-extrabold text-black">
-            Welcome to DeFlow
+            Welcome to DeFold
           </h1>
         </div>
 
