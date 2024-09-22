@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import * as sapphire from '@oasisprotocol/sapphire-paratime';
 
-const contractAddress = "0x4bE87Ced729c0F1226D548E4C57f32F358F93D40"; // Your contract address
+const contractAddress = "0xAD3A84bF125bC9fFA4890851040805F467237b33"; // Your contract address
 const abi = [
   // Genomic Data submission
   "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
@@ -164,7 +164,7 @@ export default function Marketplace() {
             key={product.id}
             className="bg-white bg-opacity-10 backdrop-blur-lg p-5 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200"
           >
-            <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-lg mb-4" />
+            {/* <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-lg mb-4" /> */}
             <h2 className="font-londrina text-2xl font-bold">{product.name}</h2>
             <p className="font-londrina text-lg text-gray-300 mb-2">{product.price}</p>
             <p className="font-londrina text-sm text-gray-400 mb-4">{product.description}</p>

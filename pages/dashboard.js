@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ethers } from 'ethers';
 import * as sapphire from '@oasisprotocol/sapphire-paratime';
 
-const contractAddress = "0x4bE87Ced729c0F1226D548E4C57f32F358F93D40"; // Your contract address
+const contractAddress = "0xAD3A84bF125bC9fFA4890851040805F467237b33"; // Your contract address
 const abi = [
   // Genomic Data submission
   "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
