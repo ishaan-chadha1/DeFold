@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import * as sapphire from '@oasisprotocol/sapphire-paratime';
 
-const contractAddress = "0xB39387394ac017a51FA487D22fA5258f1E71d546"; // Your contract address
+const contractAddress = "0x4b6FEa99456118cAffA8eDCD3AAC4E961551B51e"; // Your contract address
 const abi = [
   // Genomic Data submission
   "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
@@ -19,89 +19,74 @@ const abi = [
   // Events
   "event GenomicDataSubmitted(uint indexed dataId, string title, uint price, address indexed owner)",
   "event GenomicDataSold(uint indexed dataId, address indexed buyer, uint price)",
-  "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)"
+  "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)",
+  "function genomicDataCounter() view returns (uint)",
+  "function genomicDataRegistry(uint) view returns (tuple(string chromosome, string gene, string organism, string nucleotideRange, string assemblyType, string accession, string sequence, string title, uint price, address owner))",
+  "function calculateGCBasePair(uint _dataId) external view returns (uint gcCount)",
+  "function calculateHomologousBasePair(uint _dataId, string _compareSequence) external view returns (uint homologousCount)",
+
 ];
 
 export default function Marketplace() {
+    // Available algorithms
+    const algorithms = [
+      'GNC Base Pair Calculation',
+      'All Base Pair Calculation',
+      'Homologous Base Pair Calculation',
+    ];
+
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('');
-  const [contract, setContract] = useState()
-
-  // Available algorithms
-  const algorithms = [
-    'DNA Sequencing Analysis',
-    'Gene Expression Profiling',
-    'Epigenetic Pattern Analysis',
-    'Genome-Wide Association Study (GWAS)',
-    'Variant Calling',
-  ];
-
-  // Updated genomic data mock products (realistic FASTA-like datasets)
-  const genomicProducts = [
-    {
-      id: 1,
-      name: "Human Chromosome 11: GRCh38",
-      price: "1.5 ETH",
-      image: "/chromosome_11.png",
-      description: "Contains the full sequence for Human Chromosome 11 from the GRCh38 reference genome. Ideal for genomic research and variant analysis.",
-    },
-    {
-      id: 2,
-      name: "Mitochondrial Genome: Homo sapiens",
-      price: "0.9 ETH",
-      image: "/mitochondrial_genome.png",
-      description: "Complete mitochondrial DNA sequence for Homo sapiens. Use for studies in mitochondrial disorders and evolutionary biology.",
-    },
-    {
-      id: 3,
-      name: "Bacterial Genome: E. coli K-12 MG1655",
-      price: "2.2 ETH",
-      image: "/bacterial_genome.png",
-      description: "Full genomic sequence of E. coli strain K-12 MG1655. Widely used for research in microbiology and bacterial genomics.",
-    },
-    {
-      id: 4,
-      name: "Arabidopsis thaliana Genome",
-      price: "1.8 ETH",
-      image: "/plant_genome.png",
-      description: "Genome sequence of the model organism Arabidopsis thaliana. Perfect for plant biology and genetic studies.",
-    },
-    {
-      id: 5,
-      name: "HLA Region: Human Chromosome 6",
-      price: "1.1 ETH",
-      image: "/hla_region.png",
-      description: "Detailed sequence of the HLA region on Human Chromosome 6. Essential for immunogenetics and disease association studies.",
-    },
-  ];
-
-  useEffect(() => {
-    setProducts(genomicProducts);
-  }, []);
+  const [contractWithSigner, setContractWithSigner] = useState();
 
   useEffect(() => {
     const init = async () => {
-        try {
-          if (window.ethereum) {
-            await window.ethereum.request({ method: 'eth_requestAccounts' }); // Request account access
-            const provider = sapphire.wrap(new ethers.providers.Web3Provider(window.ethereum));
-            const contract2 = new ethers.Contract(contractAddress, abi, provider);
-            setContract(contract2);
-            const currentCount = await contract.getCount();
-            setCount(currentCount.toString());
-            console.log("Successfully connected!");
-          } else {
-            console.log("Please install MetaMask!");
-          }
-        } catch (err) {
-          console.log("Error fetching count: " + err.message);
+      try {
+        if (window.ethereum) {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const provider = sapphire.wrap(new ethers.providers.Web3Provider(window.ethereum));
+          const signer = provider.getSigner(); // Get the signer
+  
+          const contractWithSignerInstance = new ethers.Contract(contractAddress, abi, signer); // Contract with signer
+          setContractWithSigner(contractWithSignerInstance); // Store the signer contract
+          
+          console.log("Successfully connected!");
+          fetchGenomicData(contractWithSignerInstance); // Pass the contract instance here
+        } else {
+          console.log("Please install MetaMask!");
         }
-      };
+      } catch (err) {
+        console.log("Error fetching count: " + err.message);
+      }
+    };
     init();
   }, []);
 
+
+  const fetchGenomicData = async (contract) => {
+    try {
+      const totalDataCount = await contract.genomicDataCounter();
+      const dataPromises = [];
+  
+      for (let i = 1; i <= totalDataCount.toNumber(); i++) {
+        dataPromises.push(contract.getGenomicDataInfo(i));
+      }
+  
+      const genomicDataList = await Promise.all(dataPromises);
+      const formattedProducts = genomicDataList.map((data, index) => ({
+        id: index, // You might want to keep track of the index
+        name: data.title,
+        price: ethers.utils.formatEther(data.price), // Convert to ETH
+        // other fields
+      }));
+  
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error("Error fetching genomic data:", error);
+    }
+  };
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setShowModal(true);
@@ -111,9 +96,54 @@ export default function Marketplace() {
     setSelectedAlgorithm(event.target.value);
   };
 
-  const handleApplyAlgorithm = () => {
+  const handleApplyAlgorithm = async () => {
     if (selectedAlgorithm) {
       alert(`Applying ${selectedAlgorithm} to ${selectedProduct.name}`);
+  
+      try {
+        const priceInWei = ethers.utils.parseEther(selectedProduct.price); // Convert ETH price to Wei
+  
+        const tx = await contractWithSigner.purchaseGenomicData(selectedProduct.id, {
+          value: priceInWei, 
+        });
+  
+        await tx.wait(); 
+        alert(`Purchased genomic data! for ${selectedProduct.name}`);
+
+        if(selectedAlgorithm.startsWith('GC')){
+          const gcCount = await contractWithSigner.calculateGCBasePair(selectedProduct.id);
+          alert(`GC Base Pair Count: ${gcCount.toNumber()}`);
+        }else if(selectedAlgorithm.startsWith('All')){
+          const counts = await contractWithSigner.getNucleotideCounts(selectedProduct.id);
+          const aCount = counts[0].toNumber(); 
+          const cCount = counts[1].toNumber();
+          const tCount = counts[2].toNumber();
+          const gCount = counts[3].toNumber();
+          alert(`Nucleotide Counts - A: ${aCount}, C: ${cCount}, T: ${tCount}, G: ${gCount}`);
+          setTransactionStatus('success');
+        }else if(selectedAlgorithm.startsWith('Homol')){
+          const compareSequence = prompt("Enter the sequence to compare against:");
+          if (!compareSequence) {
+              alert("Please provide a sequence.");
+              return;
+          }
+      
+          try {
+              const homologousCount = await contractWithSigner.calculateHomologousBasePair(selectedProduct.id, compareSequence);
+              alert(`Homologous Base Pair Count: ${homologousCount.toNumber()}`);
+              setTransactionStatus('success');
+          } catch (error) {
+              console.error("Error calculating homologous base pair count:", error);
+              alert("You must purchase this data to view homologous counts.");
+              setTransactionStatus('error');
+          }
+        }
+
+      } catch (error) {
+        console.error("Error purchasing genomic data:", error);
+        alert("There was an error purchasing the data. Please try again.");
+      }
+  
       setShowModal(false);
     } else {
       alert("Please select an algorithm.");

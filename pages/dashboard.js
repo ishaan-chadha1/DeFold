@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ethers } from 'ethers';
 import * as sapphire from '@oasisprotocol/sapphire-paratime';
 
-const contractAddress = "0xB39387394ac017a51FA487D22fA5258f1E71d546"; // Your contract address
+const contractAddress = "0x4b6FEa99456118cAffA8eDCD3AAC4E961551B51e"; // Your contract address
 const abi = [
   // Genomic Data submission
   "function submitGenomicData(string _name, string _chromosome, string _gene, string _organism, string _nucleotideRange, string _assemblyType, string _accession, string _sequence, string _title, uint _price) external",
@@ -23,7 +23,11 @@ const abi = [
   // Events
   "event GenomicDataSubmitted(uint indexed dataId, string title, uint price, address indexed owner)",
   "event GenomicDataSold(uint indexed dataId, address indexed buyer, uint price)",
-  "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)"
+  "event ResearcherRated(address indexed researcher, address indexed rater, uint rating)",
+  "function genomicDataCounter() view returns (uint)",
+  "function genomicDataRegistry(uint) view returns (tuple(string chromosome, string gene, string organism, string nucleotideRange, string assemblyType, string accession, string sequence, string title, uint price, address owner))",
+  "function calculateGCBasePair(uint _dataId) external view returns (uint gcCount)",
+  "function calculateHomologousBasePair(uint _dataId, string _compareSequence) external view returns (uint homologousCount)",
 ];
 export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -49,8 +53,7 @@ export default function Dashboard() {
           await window.ethereum.request({ method: 'eth_requestAccounts' });
           const provider = sapphire.wrap(new ethers.providers.Web3Provider(window.ethereum));
           const signer = provider.getSigner(); // Get the signer
-
-          const contractInstance = new ethers.Contract(contractAddress, abi, provider);
+          
           const contractWithSignerInstance = new ethers.Contract(contractAddress, abi, signer); // Contract with signer
 
           setContractWithSigner(contractWithSignerInstance); // Store the signer contract
@@ -64,7 +67,6 @@ export default function Dashboard() {
     };
     init();
   }, []);
-
   const parseFasta = (file) => {
     const reader = new FileReader();
     reader.onload = (event) => {
