@@ -1,18 +1,18 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function Home() {
   const companies = [
     {
-      name: 'Oasis Blockchain',
-      logo: '/oasis-logo.png',
+      name: "Oasis Blockchain",
+      logo: "/oasis-logo.png",
     },
     {
-      name: 'Worldcoin',
-      logo: '/worldcoin-logo.png',
+      name: "Worldcoin",
+      logo: "/worldcoin-logo.png",
     },
     {
-      name: 'Ethereum',
-      logo: '/ethereum-logo1.png',
+      name: "Ethereum",
+      logo: "/ethereum-logo1.png",
     },
   ];
 
@@ -30,9 +30,17 @@ export default function Home() {
             Welcome to DeFold
           </h1>
         </div>
+        <div className="flex justify-center space-x-4">
+          <Link href="https://docs.google.com/document/d/1Kq7XIa88MY1emqAWU6cU2mYdVu39_Pu2iz85XmczZG0/edit?usp=sharing">
+            <button className="font-londrina px-8 py-4 mt-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200">
+              View Documentation
+            </button>
+          </Link>
+        </div>
 
         <p className="font-londrina text-xl text-black max-w-xl mx-auto">
-          Securely log in with Worldcoin and access the future of Genomic Data Marketplaces.
+          Securely log in with Worldcoin and access the future of Genomic Data
+          Marketplaces.
         </p>
 
         <div className="flex justify-center space-x-4">
@@ -47,24 +55,34 @@ export default function Home() {
         <div className="marquee mt-12 w-full overflow-hidden">
           <div className="marquee-content">
             {companies.map((company, index) => (
-              <div key={index} className="flex flex-col items-center justify-center p-4">
+              <div
+                key={index}
+                className="flex flex-col items-center justify-center p-4"
+              >
                 <img
                   src={company.logo}
                   alt={company.name}
                   className="w-24 h-24 object-contain mb-4"
                 />
-                <p className="font-londrina text-xl font-semibold text-black">{company.name}</p>
+                <p className="font-londrina text-xl font-semibold text-black">
+                  {company.name}
+                </p>
               </div>
             ))}
             {/* Repeat logos to ensure the scrolling is seamless */}
             {companies.map((company, index) => (
-              <div key={index} className="flex flex-col items-center justify-center p-4">
+              <div
+                key={index}
+                className="flex flex-col items-center justify-center p-4"
+              >
                 <img
                   src={company.logo}
                   alt={company.name}
                   className="w-24 h-24 object-contain mb-4"
                 />
-                <p className="font-londrina text-xl font-semibold text-black">{company.name}</p>
+                <p className="font-londrina text-xl font-semibold text-black">
+                  {company.name}
+                </p>
               </div>
             ))}
           </div>
